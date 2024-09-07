@@ -114,7 +114,7 @@ def main():
 
     # Создаем объект класса бота
     bot = TeleBot(token=TELEGRAM_TOKEN)
-    timestamp = int(time.time() - 60 * 86400)
+    timestamp = int(time.time())
 
     while True:
         try:
