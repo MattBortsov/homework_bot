@@ -3,7 +3,6 @@ import os
 import requests
 import time
 import sys
-import telebot
 
 from dotenv import load_dotenv
 from telebot import TeleBot
