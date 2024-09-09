@@ -44,14 +44,13 @@ def check_tokens():
             f'{", ".join(missing_tokens)}'
         )
         logging.critical(error_message)
-        raise Exception(error_message)
-    return True
+        raise OSError(error_message)
 
 
 def send_message(bot, message):
     """Отправляет сообщение в Telegram."""
+    logging.debug(f'Начало отправки сообщения: {message}')
     try:
-        logging.debug(f'Начало отправки сообщения: {message}')
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logging.debug(f'Бот отправил сообщение: {message}')
     except (ApiException, requests.RequestException) as error:
@@ -95,7 +94,7 @@ def check_response(response):
     if not isinstance(homeworks, list):
         raise TypeError(
             'По ключу "homeworks" должен быть список. '
-            f'Получен тип: {type(response).__name__}.'
+            f'Получен тип: {type(homeworks).__name__}.'
         )
 
     logging.debug('Проверка ответа от API завершена успешно.')
@@ -122,14 +121,8 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s %(levelname)s %(funcName)s %(message)s ',
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
     check_tokens()
 
-    # Создаем объект класса бота
     bot = TeleBot(token=TELEGRAM_TOKEN)
     timestamp = int(time.time())
 
@@ -141,15 +134,11 @@ def main():
             if homeworks:
                 message = parse_status(homeworks[0])
                 send_message(bot, message)
+                last_error_message = ''
             else:
-                # Логируем отсутствие изменений статуса
                 logging.debug('Нет новых статусов для проверки.')
             timestamp = response.get('current_date', int(time.time()))
-        except (
-            requests.RequestException,
-            telebot.apihelper.ApiException,
-            ConnectionError
-        ) as error:
+        except Exception as error:
             error_message = f'Сбой в работе программы: {error}'
             logging.error(error_message)
             if error_message != last_error_message:
@@ -160,4 +149,9 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s %(funcName)s %(message)s ',
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
     main()
