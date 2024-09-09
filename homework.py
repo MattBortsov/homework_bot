@@ -1,13 +1,13 @@
 import logging
 import os
-import requests
-import time
 import sys
+import time
+from http import HTTPStatus
 
+import requests
 from dotenv import load_dotenv
 from telebot import TeleBot
 from telebot.apihelper import ApiException
-from http import HTTPStatus
 
 
 load_dotenv()
